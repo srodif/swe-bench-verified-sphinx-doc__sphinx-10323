@@ -217,6 +217,20 @@ def test_LiteralIncludeReader_prepend(literal_inc_path):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_prepend_append_dedent(literal_inc_path):
+    # Test that dedent only affects the original file content, not prepended/appended content
+    options = {'lines': '9-11', 'prepend': '    PREFIX', 'append': '    SUFFIX', 'dedent': 4}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    # The prepend/append should maintain their indentation, while the original content gets dedented
+    assert content == ("    PREFIX\n"
+                       "def baz():\n"
+                       "    pass\n"
+                       "\n"
+                       "    SUFFIX\n")
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_dedent(literal_inc_path):
     # dedent: 2
     options = {'lines': '9-11', 'dedent': 2}
